@@ -1,0 +1,8 @@
+npm install -g chai
+npm install -g mocha
+npm install -g ts-node
+npm install -g @types/chai 
+npm install -g @types/mocha
+npm install -g typescript
+
+    
