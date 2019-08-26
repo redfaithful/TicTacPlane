@@ -12,8 +12,8 @@ import { PolarAngels } from './game.utils';
 export class GameComponent implements OnInit {
     cube: Cube;
     cubeletsArray: Point3[];
-    defaultColour= 'Silver';
-    players: string[] = ['Blue', 'Red'];
+    defaultColour = 'lightgray';
+    players: string[] = ['red', 'blue'];
     turn = 0;
     cubeSize = 3;
     cubeTransformSize: number;
@@ -27,27 +27,8 @@ export class GameComponent implements OnInit {
 
     ngOnInit() {
         this.cube = new Cube( this.cubeSize, this.defaultColour );
-        this.cubeTransformSize = (this.cubeSize - 1) / 2;
+        this.cubeTransformSize = ( this.cubeSize - 1 ) / 2;
         this.cubeletsArray = this.cube.cubeletsArray();
-    }
-
-    playerSelectCubelet( player: string, x: number, y: number, z: number ): boolean {
-        const cubelet: object = this.cube.cubeletAt( x, y, z );
-        if ( cubelet['player'] === this.defaultColour ) {
-            cubelet['player'] = player;
-            const symmetryCubelet: object = this.cube.cubeletAt( Cube.symmetry( x ), Cube.symmetry( y ), Cube.symmetry( z ) );
-            symmetryCubelet['player'] = player;
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    getCubeSize(): number {
-        return this.cubeSize;
-    }
-    printAttribute( attr: string ) {
-        this.cube.printAttrbiute( attr );
     }
 
     playTurn( x: number, y: number, z: number ): boolean {
@@ -58,6 +39,48 @@ export class GameComponent implements OnInit {
             return false;
         }
     }
+
+    playerSelectCubelet( player: string, x: number, y: number, z: number ): boolean {
+        const cubelet: object = this.cube.cubeletAt( x, y, z );
+        if ( cubelet['player'] === this.defaultColour ) {
+            cubelet['player'] = player;
+            const symmetryCubelet: object = this.cube.cubeletAt( Cube.symmetry( x ), Cube.symmetry( y ), Cube.symmetry( z ) );
+            symmetryCubelet['player'] = player;
+            this.updateRiskFactor( cubelet, symmetryCubelet, player, x, y, z );
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    updateRiskFactor( cubelet: object, symmetryCubelet: object, player: string, x: number, y: number, z: number ): boolean {
+        cubelet['riskFactor'] = {};
+        cubelet['riskFactor'][this.players[0]] = -1;
+        cubelet['riskFactor'][this.players[1]] = -1;
+        symmetryCubelet['riskFactor'] = {};
+        symmetryCubelet['riskFactor'][this.players[0]] = -1;
+        symmetryCubelet['riskFactor'][this.players[1]] = -1;
+        for ( let i = -this.cubeTransformSize; i <= this.cubeTransformSize; i++ ) {
+            for ( let j = -this.cubeTransformSize; j <= this.cubeTransformSize; j++ ) {
+                for ( let k = -this.cubeTransformSize; k <= this.cubeTransformSize; k++ ) {
+                    // ignore colored cubelets
+                    // find THE plane that's common to i,j,k and x,y,z
+                    // calculate the risk factor of the plane and apply it to all cubelets on it
+                    // if that is equal to 1, return true
+                }
+            }
+        }
+        return false;
+    }
+
+    getCubeSize(): number {
+        return this.cubeSize;
+    }
+
+    printAttribute( attr: string ) {
+        this.cube.printAttrbiute( attr );
+    }
+
     mousePress( event ) {
         this.mouse.down = true;
         this.mouse.x = event.clientX;

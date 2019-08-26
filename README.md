@@ -2,7 +2,7 @@
 
 TicTacPlane is the 3D version of TicTacToe, in which the playground is a cube. 
 Each player in his turn selects a cubelet (with its symmetric counterpart), trying
-to be the first to complete an entire plain through the cubes center.   
+to be the first to complete an entire plain through the cube center.   
 
 ## Running the Application
 
