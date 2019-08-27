@@ -27,7 +27,7 @@ export class Cube {
         return -n;
     }
 
-    constructor( length: number, defaultColour: string ) {
+    constructor( length: number ) {
         this.prime = isPrime( length );
         if ( !isPrime( length ) ) {
             throw new Error( 'Cube length must be prime number' );
@@ -40,7 +40,7 @@ export class Cube {
             for ( let j = 0; j < length; j++ ) {
                 this.cubelets[i][j] = [];
                 for ( let k = 0; k < length; k++ ) {
-                    this.cubelets[i][j][k] = { 'player': defaultColour };
+                    this.cubelets[i][j][k] = { };
                 }
             }
         }

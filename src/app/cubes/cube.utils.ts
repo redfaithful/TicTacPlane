@@ -8,3 +8,8 @@ export function isPrime( n: number ): boolean {
     return n > 1;
 }
 
+export function sortedIndexesArray( a: Array<number>): Array<number> {
+    return a.map( function( e, i ) {
+        return [e, i];
+    } ).sort(( a, b ) => a[0] - b[0] ).map( x => x[1] );
+}

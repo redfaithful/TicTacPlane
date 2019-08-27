@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Cube, Point3 } from './cube.model';
 import { PolarAngels } from './game.utils';
+import { sortedIndexesArray } from './cube.utils';
 
 @Component( {
     selector: 'app-cubes',
@@ -26,7 +27,7 @@ export class GameComponent implements OnInit {
     constructor() { }
 
     ngOnInit() {
-        this.cube = new Cube( this.cubeSize, this.defaultColour );
+        this.cube = new Cube( this.cubeSize );
         this.cubeTransformSize = ( this.cubeSize - 1 ) / 2;
         this.cubeletsArray = this.cube.cubeletsArray();
     }
@@ -42,7 +43,7 @@ export class GameComponent implements OnInit {
 
     playerSelectCubelet( player: string, x: number, y: number, z: number ): boolean {
         const cubelet: object = this.cube.cubeletAt( x, y, z );
-        if ( cubelet['player'] === this.defaultColour ) {
+        if ( cubelet['player'] === undefined ) {
             cubelet['player'] = player;
             const symmetryCubelet: object = this.cube.cubeletAt( Cube.symmetry( x ), Cube.symmetry( y ), Cube.symmetry( z ) );
             symmetryCubelet['player'] = player;
@@ -64,6 +65,7 @@ export class GameComponent implements OnInit {
             for ( let j = -this.cubeTransformSize; j <= this.cubeTransformSize; j++ ) {
                 for ( let k = -this.cubeTransformSize; k <= this.cubeTransformSize; k++ ) {
                     // ignore colored cubelets
+                    this.cube.cubeletAt( i, j, k )
                     // find THE plane that's common to i,j,k and x,y,z
                     // calculate the risk factor of the plane and apply it to all cubelets on it
                     // if that is equal to 1, return true
@@ -109,10 +111,8 @@ export class GameComponent implements OnInit {
     reorderCubelets(): any {
         const wrapper = document.getElementsByClassName( 'game-component' )[0];
         const items = Array.prototype.slice.call( wrapper.children );
-        const zIndexArr = wrapper['textContent'].trim().split( ' ' )
-            .map( z => parseInt( z, 10 ) ).map( function( e, i ) {
-                return [e, i];
-            } ).sort(( a, b ) => a[0] - b[0] ).map( x => x[1] );
+        const zIndexArr = sortedIndexesArray(wrapper['textContent'].trim().split( ' ' )
+            .map( z => parseInt( z, 10 ) ));
 
         for ( const i in items ) {
             const item = items[zIndexArr[i]];
@@ -139,7 +139,11 @@ export class GameComponent implements OnInit {
     }
 
     getCubeletColour( p: Point3 ): string {
-        return this.cube.cubelets[p.x + this.cubeTransformSize][p.y + this.cubeTransformSize][p.z + this.cubeTransformSize]['player'];
+        const colour = this.cube.cubelets[p.x + this.cubeTransformSize][p.y + this.cubeTransformSize][p.z + this.cubeTransformSize]['player'];
+        if ( colour ) {
+            return colour;
+        }
+        return this.defaultColour;
     }
 
 }

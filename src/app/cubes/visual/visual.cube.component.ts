@@ -5,6 +5,7 @@ import { Point3, Point2 } from '../cube.model';
 import { OnInit } from '@angular/core';
 import { SimpleChange } from '@angular/core';
 import { PolarAngels } from '../game.utils';
+import { sortedIndexesArray } from '../cube.utils';
 
 @Component( {
     selector: '[visual-cube]',
@@ -61,6 +62,7 @@ export class VisualCubeComponent implements OnInit {
     selectionEvent = new EventEmitter();
 
     mathLength = 0;
+
     ngOnInit() {
         this.mathLength = ( this.length - 1 ) / 2;
         const d = this.size / 2;
@@ -168,10 +170,7 @@ export class VisualCubeComponent implements OnInit {
                         }
                         facesZ.push( sumZ );
                     }
-                    const facesOrder = facesZ.map( function( e, i ) {
-                        return [e, i];
-                    } ).sort(( a, b ) => a[0] - b[0] ).map( x => x[1] );
-
+                    const facesOrder = sortedIndexesArray(facesZ);
                     this.sortArray( facesOrder );
                 }
 
@@ -182,7 +181,7 @@ export class VisualCubeComponent implements OnInit {
         }
     }
 
-    test( event ) {
+    selected( event ) {
         const p = new Point3( this.offsetX, this.offsetY, this.offsetZ );
         this.selectionEvent.emit( p );
     }
