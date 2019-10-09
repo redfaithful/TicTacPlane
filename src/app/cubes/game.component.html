@@ -2,5 +2,5 @@
   Cubes rule!
 </p>
 <svg class="game-component" view-box="0 0 800 800" width="800" height="800" (mousedown)="mousePress($event)" (mousemove)="mouseMove($event)" (mouseup)="mouseRelease($event)">
-	<svg:g *ngFor="let c of cubeletsArray" visual-cube [mouseTracking]="mouseTracking" [size]=69 [xLocation]=400 [yLocation]=300 [centerX]=-100 [centerY]=0 [centerZ]=0 [offsetX]="getOffsetX(c)" [offsetY]="getOffsetY(c)" [offsetZ]="getOffsetZ(c)" [colour]="getCubeletColour(c)" [length]="cubeSize" (selectionEvent)="select($event)"></svg:g>
+	<svg:g *ngFor="let c of cubeletsArray" visual-cube [attr.mouseTracking]="mouseTracking" [attr.size]=69 [attr.xLocation]=400 [attr.yLocation]=300 [attr.centerX]=-100 [attr.centerY]=0 [attr.centerZ]=0 [attr.offsetX]="getOffsetX(c)" [attr.offsetY]="getOffsetY(c)" [attr.offsetZ]="getOffsetZ(c)" [attr.colour]="getCubeletColour(c)" [attr.length]="cubeSize" (selectionEvent)="select($event)"></svg:g>
 </svg>
