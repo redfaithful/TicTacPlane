@@ -32,6 +32,7 @@ describe( 'GameComponent', () => {
         const cubelet000again = component.cube.cubeletAt( 0, 0, 0 );
         expect( cubelet000again['color'] ).to.equal( 'red' );
     } );
+    
     it( 'should correctly change turn and return the right player number', () => {
         expect( component.playTurn( 1, 1, 1 ) ).to.be.equal( true );
         expect( component.playTurn( 1, 1, 1 ) ).to.be.equal( false );
