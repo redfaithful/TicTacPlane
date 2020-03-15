@@ -15,6 +15,11 @@ export class Point3 extends Point2 {
         super( x, y );
         this.z = z;
     }
+
+    toString(): String {
+        const arr = [this.x, this.y, this.z];
+        return arr.join();
+    }
 }
 
 export class Cube {
@@ -40,7 +45,7 @@ export class Cube {
             for ( let j = 0; j < length; j++ ) {
                 this.cubelets[i][j] = [];
                 for ( let k = 0; k < length; k++ ) {
-                    this.cubelets[i][j][k] = { };
+                    this.cubelets[i][j][k] = {};
                 }
             }
         }

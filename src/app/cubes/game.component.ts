@@ -61,20 +61,59 @@ export class GameComponent implements OnInit {
         symmetryCubelet['riskFactor'] = {};
         symmetryCubelet['riskFactor'][this.players[0]] = -1;
         symmetryCubelet['riskFactor'][this.players[1]] = -1;
+        const pointXYZ = new Point3( x, y, z );
+        const visited = new Set( [pointXYZ.toString()] );
         for ( let i = -this.cubeTransformSize; i <= this.cubeTransformSize; i++ ) {
             for ( let j = -this.cubeTransformSize; j <= this.cubeTransformSize; j++ ) {
                 for ( let k = -this.cubeTransformSize; k <= this.cubeTransformSize; k++ ) {
-                    // ignore colored cubelets
-                    this.cube.cubeletAt( i, j, k )
-                    // find THE plane that's common to i,j,k and x,y,z
-                    // calculate the risk factor of the plane and apply it to all cubelets on it
-                    // if that is equal to 1, return true
+                    if ( i !== 0 || j !== 0 || k !== 0 ) {
+                        const pointIJK = new Point3( i, j, k );
+                        if ( !visited.has( pointIJK.toString() ) ) {
+                            //console.log( pointXYZ );
+                            //console.log( pointIJK );
+                            // ignore colored cubelets
+                            const cubeletIJK = this.cube.cubeletAt( i, j, k );
+                            if ( cubeletIJK['player'] === undefined ) {
+                                // find THE plane that's common to i,j,k and x,y,z
+                                const plainCubelets = this.getPlainCubelets( pointIJK, pointXYZ );
+                                for ( const p of plainCubelets ) {
+                                    visited.add( p.toString() );
+                                }
+                                //console.log( plainCubelets );
+                                // calculate the risk factor of the plane and apply it to all cubelets on it
+                                // if that is equal to 1, return true
+                            }
+                        }
+                    }
                 }
             }
         }
         return false;
     }
 
+    getPlainCubelets( point1: Point3, point2: Point3 ): Point3[] {
+        const plane = [];
+        for ( let i = -this.cubeTransformSize; i <= this.cubeTransformSize; i++ ) {
+            for ( let j = -this.cubeTransformSize; j <= this.cubeTransformSize; j++ ) {
+                if ( i !== 0 || j !== 0 ) {
+                    plane.push( this.linearCombination( i, point1, j, point2 ) );
+                }
+            }
+        }
+        return plane;
+    }
+
+    linearCombination( i: number, pointI: Point3, j: number, pointJ: Point3 ): Point3 {
+        return new Point3(
+            this.cycle( i * pointI.x + j * pointJ.x ),
+            this.cycle( i * pointI.y + j * pointJ.y ),
+            this.cycle( i * pointI.z + j * pointJ.z )
+        );
+    }
+
+    cycle( n: number ): number {
+        return ( ( ( n + this.cubeSize + this.cubeTransformSize ) % this.cubeSize ) - this.cubeTransformSize );
+    }
     getCubeSize(): number {
         return this.cubeSize;
     }
@@ -111,8 +150,8 @@ export class GameComponent implements OnInit {
     reorderCubelets(): any {
         const wrapper = document.getElementsByClassName( 'game-component' )[0];
         const items = Array.prototype.slice.call( wrapper.children );
-        const zIndexArr = sortedIndexesArray(wrapper['textContent'].trim().split( ' ' )
-            .map( z => parseInt( z, 10 ) ));
+        const zIndexArr = sortedIndexesArray( wrapper['textContent'].trim().split( ' ' )
+            .map( z => parseInt( z, 10 ) ) );
 
         for ( const i in items ) {
             const item = items[zIndexArr[i]];
