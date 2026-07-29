@@ -4,10 +4,11 @@
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
     "declaration": false,
-    "moduleResolution": "node",
+    "module": "preserve",
+    "moduleResolution": "bundler",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "target": "es5",
+    "target": "ES2022",
     "typeRoots": [
       "node_modules/@types"
     ],
@@ -16,8 +17,10 @@
       "dom"
     ],
     "plugins": [
-      { "name": "@angular/language-service"},
-      { "name": "tslint-language-service"}
+      { "name": "@angular/language-service"}
     ]
-  }
+  },
+  "exclude": [
+    "src/**/*.spec.ts"
+  ]
 }
