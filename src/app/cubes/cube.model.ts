@@ -114,22 +114,4 @@ export class Cube {
   transform(n: number): number {
     return n + this.transformValue;
   }
-
-  printAttribute(attr: string): void {
-    for (let i = 0; i < this.length; i++) {
-      let spacing = '';
-
-      for (let j = 0; j < this.length; j++) {
-        let row = spacing;
-        spacing += '    ';
-
-        for (let k = 0; k < this.length; k++) {
-          const value = this.cubelets[i][j][k][attr];
-          row += `${String(value)}  `;
-        }
-
-        console.log(row);
-      }
-    }
-  }
 }

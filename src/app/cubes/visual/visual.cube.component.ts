@@ -46,6 +46,8 @@ export class VisualCubeComponent implements OnInit, OnChanges {
   @Input() mouseTracking?: PolarAngels;
   @Input() length = 0;
 
+  @Input() disabled = false;
+
   @Output() readonly selectionEvent = new EventEmitter<Point3>();
 
   ngOnInit(): void {
@@ -249,6 +251,10 @@ export class VisualCubeComponent implements OnInit, OnChanges {
   }
 
   selected(): void {
+    if (this.disabled) {
+      return;
+    }
+
     this.selectionEvent.emit(
       new Point3(
         this.offsetX,

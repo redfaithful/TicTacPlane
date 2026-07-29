@@ -7,9 +7,17 @@ interface CubeletRiskFactor {
   [player: string]: number;
 }
 
-interface GameCubelet extends Cubelet {
+export interface GameCubelet extends Cubelet {
   player?: string;
   riskFactor?: CubeletRiskFactor;
+}
+
+export interface TurnResult {
+  accepted: boolean;
+  won: boolean;
+  tied: boolean;
+  player: string;
+  reason?: 'occupied' | 'game-over';
 }
 
 @Component({
@@ -23,11 +31,15 @@ export class GameComponent implements OnInit {
   cubeletsArray: Point3[] = [];
 
   readonly defaultColour = 'lightgray';
+  readonly disabledColour = 'white';
   readonly players: string[] = ['red', 'blue'];
 
   turn = 0;
   cubeSize = 3;
   cubeTransformSize = 0;
+
+  winner?: string;
+  tied = false;
 
   mouse = {
     down: false,
@@ -43,15 +55,59 @@ export class GameComponent implements OnInit {
     this.cubeletsArray = this.cube.cubeletsArray();
   }
 
-  playTurn(x: number, y: number, z: number): boolean {
+  private hasAvailableMoves(): boolean {
+    return this.cubeletsArray.some(point => {
+      const cubelet = this.cube.cubeletAt(
+        point.x,
+        point.y,
+        point.z,
+      ) as GameCubelet;
+
+      return cubelet.player === undefined;
+    });
+  }
+
+  playTurn(x: number, y: number, z: number): TurnResult {
     const player = this.players[this.turn % this.players.length];
 
-    if (!this.playerSelectCubelet(player, x, y, z)) {
-      return false;
+    if (this.winner !== undefined || this.tied) {
+      return {
+        accepted: false,
+        won: false,
+        tied: this.tied,
+        player,
+        reason: 'game-over',
+      };
+    }
+
+    const result = this.playerSelectCubelet(
+      player,
+      x,
+      y,
+      z,
+    );
+
+    if (!result.accepted) {
+      return result;
     }
 
     this.turn += 1;
-    return true;
+
+    if (result.won) {
+      this.winner = result.player;
+      return result;
+    }
+
+    if (!this.hasAvailableMoves()) {
+      this.tied = true;
+
+      return {
+        ...result,
+        tied: true,
+      };
+    }
+
+    return result;
   }
 
   playerSelectCubelet(
@@ -59,11 +115,21 @@ export class GameComponent implements OnInit {
     x: number,
     y: number,
     z: number,
-  ): boolean {
-    const cubelet = this.cube.cubeletAt(x, y, z) as GameCubelet;
+  ): TurnResult {
+    const cubelet = this.cube.cubeletAt(
+      x,
+      y,
+      z,
+    ) as GameCubelet;
 
     if (cubelet.player !== undefined) {
-      return false;
+      return {
+        accepted: false,
+        won: false,
+        tied: false,
+        player,
+        reason: 'occupied',
+      };
     }
 
     cubelet.player = player;
@@ -76,92 +142,196 @@ export class GameComponent implements OnInit {
 
     symmetryCubelet.player = player;
 
-    this.updateRiskFactor(
-      cubelet,
-      symmetryCubelet,
-      player,
-      x,
-      y,
-      z,
-    );
+    const won = this.updateRiskFactor(player);
 
-    return true;
+    if (won) {
+      console.log(`${player} completed a plane`);
+    }
+
+    return {
+      accepted: true,
+      won,
+      tied: false,
+      player,
+    };
   }
 
-  updateRiskFactor(
-    cubelet: GameCubelet,
-    symmetryCubelet: GameCubelet,
-    player: string,
-    x: number,
-    y: number,
-    z: number,
-  ): boolean {
-    cubelet.riskFactor = this.createInitialRiskFactor();
-    symmetryCubelet.riskFactor = this.createInitialRiskFactor();
-
-    const pointXYZ = new Point3(x, y, z);
-    const visited = new Set<string>([pointXYZ.toString()]);
-
-    for (
-      let i = -this.cubeTransformSize;
-      i <= this.cubeTransformSize;
-      i++
-    ) {
-      for (
-        let j = -this.cubeTransformSize;
-        j <= this.cubeTransformSize;
-        j++
-      ) {
-        for (
-          let k = -this.cubeTransformSize;
-          k <= this.cubeTransformSize;
-          k++
-        ) {
-          if (i === 0 && j === 0 && k === 0) {
-            continue;
-          }
-
-          const pointIJK = new Point3(i, j, k);
-
-          if (visited.has(pointIJK.toString())) {
-            continue;
-          }
-
-          const cubeletIJK = this.cube.cubeletAt(
-            i,
-            j,
-            k,
+  private resetRiskFactors(): void {
+    for (let x = -this.cubeTransformSize;
+         x <= this.cubeTransformSize;
+         x++) {
+      for (let y = -this.cubeTransformSize;
+           y <= this.cubeTransformSize;
+           y++) {
+        for (let z = -this.cubeTransformSize;
+             z <= this.cubeTransformSize;
+             z++) {
+          const cubelet = this.cube.cubeletAt(
+            x,
+            y,
+            z,
           ) as GameCubelet;
 
-          // Ignore already selected cubelets.
-          if (cubeletIJK.player !== undefined) {
+          cubelet.riskFactor = this.createInitialRiskFactor();
+        }
+      }
+    }
+  }
+
+  private getAllNonZeroPoints(): Point3[] {
+    const points: Point3[] = [];
+
+    for (let x = -this.cubeTransformSize;
+         x <= this.cubeTransformSize;
+         x++) {
+      for (let y = -this.cubeTransformSize;
+           y <= this.cubeTransformSize;
+           y++) {
+        for (let z = -this.cubeTransformSize;
+             z <= this.cubeTransformSize;
+             z++) {
+          if (x === 0 && y === 0 && z === 0) {
             continue;
           }
 
-          // Find the plane common to pointIJK and pointXYZ.
-          const planeCubelets = this.getPlaneCubelets(
-            pointIJK,
-            pointXYZ,
-          );
-
-          for (const point of planeCubelets) {
-            visited.add(point.toString());
-          }
-
-          /*
-           * Calculate the risk factor of the plane here and apply it
-           * to the relevant cubelets.
-           *
-           * The original file did not yet contain this calculation.
-           */
+          points.push(new Point3(x, y, z));
         }
       }
     }
 
-    // Avoid an unused-parameter warning until the risk calculation uses it.
-    void player;
+    return points;
+  }
 
-    return false;
+  private getUniquePlaneCubelets(
+    point1: Point3,
+    point2: Point3,
+  ): Point3[] {
+    const uniquePoints = new Map<string, Point3>();
+
+    for (const point of this.getPlaneCubelets(point1, point2)) {
+      uniquePoints.set(point.toString(), point);
+    }
+
+    return [...uniquePoints.values()];
+  }
+
+  private getPlaneKey(points: Point3[]): string {
+    return points
+      .map(point => point.toString())
+      .sort()
+      .join('|');
+  }
+
+  private calculatePlaneRisk(
+    planePoints: Point3[],
+    player: string,
+  ): number {
+    let playerCubelets = 0;
+
+    for (const point of planePoints) {
+      const cubelet = this.cube.cubeletAt(
+        point.x,
+        point.y,
+        point.z,
+      ) as GameCubelet;
+
+      if (
+        cubelet.player !== undefined &&
+        cubelet.player !== player
+      ) {
+        return -1;
+      }
+
+      if (cubelet.player === player) {
+        playerCubelets++;
+      }
+    }
+
+    return playerCubelets / planePoints.length;
+  }
+
+  private applyPlaneRisk(
+    planePoints: Point3[],
+    player: string,
+    risk: number,
+  ): void {
+    for (const point of planePoints) {
+      const cubelet = this.cube.cubeletAt(
+        point.x,
+        point.y,
+        point.z,
+      ) as GameCubelet;
+
+      // Risk is useful primarily for currently selectable cubelets.
+      if (cubelet.player !== undefined) {
+        continue;
+      }
+
+      cubelet.riskFactor ??= this.createInitialRiskFactor();
+
+      cubelet.riskFactor[player] = Math.max(
+        cubelet.riskFactor[player] ?? -1,
+        risk,
+      );
+    }
+  }
+
+  updateRiskFactor(
+    player: string,
+  ): boolean {
+    this.resetRiskFactors();
+
+    const points = this.getAllNonZeroPoints();
+    const visitedPlanes = new Set<string>();
+    let playerWon = false;
+
+    for (let first = 0; first < points.length; first++) {
+      for (let second = first + 1; second < points.length; second++) {
+        const planePoints = this.getUniquePlaneCubelets(
+          points[first],
+          points[second],
+        );
+
+        /*
+         * Two linearly dependent points generate only a line, not a plane.
+         * A two-dimensional plane over a field of size p contains p² - 1
+         * non-zero points.
+         */
+        const expectedPlaneSize =
+          this.cubeSize * this.cubeSize - 1;
+
+        if (planePoints.length !== expectedPlaneSize) {
+          continue;
+        }
+
+        const planeKey = this.getPlaneKey(planePoints);
+
+        if (visitedPlanes.has(planeKey)) {
+          continue;
+        }
+
+        visitedPlanes.add(planeKey);
+
+        for (const evaluatedPlayer of this.players) {
+          const risk = this.calculatePlaneRisk(
+            planePoints,
+            evaluatedPlayer,
+          );
+
+          this.applyPlaneRisk(
+            planePoints,
+            evaluatedPlayer,
+            risk,
+          );
+
+          if (evaluatedPlayer === player && risk === 1) {
+            playerWon = true;
+          }
+        }
+      }
+    }
+
+    return playerWon;
   }
 
   private createInitialRiskFactor(): CubeletRiskFactor {
@@ -217,14 +387,6 @@ export class GameComponent implements OnInit {
         this.cubeSize) -
       this.cubeTransformSize
     );
-  }
-
-  getCubeSize(): number {
-    return this.cubeSize;
-  }
-
-  printAttribute(attr: string): void {
-    this.cube.printAttribute(attr);
   }
 
   mousePress(event: MouseEvent): void {
@@ -305,7 +467,11 @@ export class GameComponent implements OnInit {
   }
 
   select(point: Point3): void {
-    this.playTurn(point.x, point.y, point.z);
+    this.playTurn(
+      point.x,
+      point.y,
+      point.z,
+    );
   }
 
   getCubeletColour(point: Point3): string {
@@ -315,6 +481,14 @@ export class GameComponent implements OnInit {
       point.z,
     ) as GameCubelet;
 
-    return cubelet.player ?? this.defaultColour;
+    if (cubelet.player !== undefined) {
+      return cubelet.player;
+    }
+
+    if (this.winner !== undefined || this.tied) {
+      return this.disabledColour;
+    }
+
+    return this.defaultColour;
   }
 }
