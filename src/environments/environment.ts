@@ -4,5 +4,8 @@
 // The list of which env maps to which file can be found in `.angular-cli.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  // In development the Angular dev server runs on :4200 while the multiplayer
+  // server runs on :8080, so point the WebSocket at the backend explicitly.
+  wsUrl: 'ws://localhost:8080/ws'
 };

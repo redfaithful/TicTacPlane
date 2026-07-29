@@ -1,0 +1,42 @@
+.game-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.game-controls .status {
+  font-weight: 600;
+  min-width: 12rem;
+  text-align: center;
+}
+
+.game-controls .menu-link {
+  text-decoration: none;
+  color: #3f51b5;
+}
+
+.game-controls button {
+  padding: 0.4rem 0.9rem;
+  border: 1px solid #3f51b5;
+  border-radius: 6px;
+  background: #fff;
+  color: #3f51b5;
+  cursor: pointer;
+}
+
+.game-controls button:hover {
+  background: #3f51b5;
+  color: #fff;
+}
+
+.invite {
+  text-align: center;
+  word-break: break-all;
+}
+
+.game-component {
+  display: block;
+  margin: 0 auto;
+}

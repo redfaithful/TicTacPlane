@@ -1,0 +1,9 @@
+node_modules
+.angular
+dist
+dist-server
+.git
+.idea
+.vscode
+npm-debug.log
+*.local

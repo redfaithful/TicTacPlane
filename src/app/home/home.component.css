@@ -1,0 +1,43 @@
+.home {
+  max-width: 640px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.tagline {
+  color: #555;
+  margin-bottom: 2rem;
+}
+
+.modes {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mode {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1.25rem 1.5rem;
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.mode:hover {
+  border-color: #3f51b5;
+  transform: translateY(-2px);
+}
+
+.mode-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.mode-desc {
+  color: #777;
+  font-size: 0.9rem;
+}

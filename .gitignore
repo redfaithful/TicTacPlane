@@ -1,0 +1,15 @@
+# Dependencies
+/node_modules
+
+# Build output
+/dist
+/dist-server
+/.angular
+
+# Editors / OS
+/.idea
+/.vscode
+.DS_Store
+
+# Logs
+npm-debug.log*
