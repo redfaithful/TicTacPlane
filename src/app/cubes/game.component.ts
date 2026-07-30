@@ -30,6 +30,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
   mouse = {
     down: false,
+    dragged: false,
     x: 0,
     y: 0,
   };
@@ -94,16 +95,23 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   select(point: Point3): void {
+    if (this.mouse.dragged) {
+      this.mouse.dragged = false;
+      return;
+    }
+
     this.controller.select(point);
   }
 
-  mousePress(event: MouseEvent): void {
+  pointerPress(event: PointerEvent): void {
+    (event.currentTarget as SVGSVGElement).setPointerCapture(event.pointerId);
     this.mouse.down = true;
+    this.mouse.dragged = false;
     this.mouse.x = event.clientX;
     this.mouse.y = event.clientY;
   }
 
-  mouseMove(event: MouseEvent): void {
+  pointerMove(event: PointerEvent): void {
     if (!this.mouse.down) {
       return;
     }
@@ -120,16 +128,15 @@ export class GameComponent implements OnInit, OnDestroy {
     const phi = (deltaY * Math.PI) / -360;
 
     this.mouseTracking = new PolarAngels(theta, phi);
+    this.mouse.dragged = true;
     this.mouse.x = event.clientX;
     this.mouse.y = event.clientY;
 
     this.reorderCubelets();
   }
 
-  mouseRelease(): void {
-    window.setTimeout(() => {
-      this.mouse.down = false;
-    }, 100);
+  pointerRelease(): void {
+    this.mouse.down = false;
   }
 
   reorderCubelets(): void {
