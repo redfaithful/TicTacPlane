@@ -104,7 +104,6 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   pointerPress(event: PointerEvent): void {
-    (event.currentTarget as SVGSVGElement).setPointerCapture(event.pointerId);
     this.mouse.down = true;
     this.mouse.dragged = false;
     this.mouse.x = event.clientX;
