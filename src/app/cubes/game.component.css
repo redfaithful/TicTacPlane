@@ -1,3 +1,8 @@
+.tagline {
+  margin: 0 0 12px;
+  text-align: center;
+}
+
 .game-controls {
   display: flex;
   align-items: center;
