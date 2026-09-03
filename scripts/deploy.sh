@@ -27,14 +27,20 @@ gcloud services enable \
   artifactregistry.googleapis.com
 
 # Build from the Dockerfile (Cloud Build) and deploy.
-# --min/--max-instances 1 + session affinity keeps both players on the single
-# instance that holds the in-memory game rooms; --timeout keeps WebSockets open.
+# Scale to zero when nobody is playing to avoid idle CPU and memory charges.
+# Keep one vCPU so Cloud Run can accept both players' concurrent WebSockets;
+# fractional CPUs require concurrency=1. Game rooms live in memory, so one
+# instance remains the maximum. --timeout keeps WebSockets open.
 gcloud run deploy "$SERVICE" \
   --source . \
   --region "$REGION" \
   --allow-unauthenticated \
-  --min-instances 1 \
+  --min-instances 0 \
   --max-instances 1 \
+  --cpu 1 \
+  --memory 128Mi \
+  --cpu-throttling \
+  --no-cpu-boost \
   --session-affinity \
   --timeout 3600
 
