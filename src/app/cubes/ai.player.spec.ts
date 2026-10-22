@@ -38,7 +38,7 @@ describe('AiPlayer', () => {
     expect(move).toBeDefined();
 
     const result = engine.playerSelectCubelet('red', move!.x, move!.y, move!.z);
-    expect(result.won).toBeTrue();
+    expect(result.won).toBe(true);
   });
 
   it('blocks an opponent about to win', () => {
@@ -129,6 +129,6 @@ describe('AiPlayer', () => {
       ).player = 'blue';
     }
 
-    expect(engine.updateRiskFactor('blue')).toBeFalse();
+    expect(engine.updateRiskFactor('blue')).toBe(false);
   });
 });

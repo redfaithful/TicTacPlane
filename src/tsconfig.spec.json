@@ -3,8 +3,12 @@
   "compilerOptions": {
     "outDir": "../out-tsc/spec",
     "types": [
-      "jasmine",
+      "vitest/globals",
       "node"
+    ],
+    "typeRoots": [
+      "../node_modules/@types",
+      "../node_modules"
     ]
   },
   "include": [

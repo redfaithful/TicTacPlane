@@ -5,13 +5,10 @@ describe('Cube model', () => {
     const cube = new Cube(3);
 
     expect(cube.length).toBe(3);
-    expect(cube.prime).toBeTrue();
+    expect(cube.prime).toBe(true);
   });
 
   it('should reject a non-prime cube length', () => {
-    expect(() => new Cube(4)).toThrowError(
-      Error,
-      'Cube length must be prime number',
-    );
+    expect(() => new Cube(4)).toThrowError(new Error('Cube length must be prime number'));
   });
 });

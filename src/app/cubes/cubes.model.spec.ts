@@ -4,8 +4,8 @@ import {sortedIndexesArray} from './cube.utils';
 describe('Utils isPrime', () => {
 
   it('should return correctly for different numbers', () => {
-    expect(isPrime(3)).toBeTrue();
-    expect(isPrime(4)).toBeFalse();
+    expect(isPrime(3)).toBe(true);
+    expect(isPrime(4)).toBe(false);
   });
 });
 

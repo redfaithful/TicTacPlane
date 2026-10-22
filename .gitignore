@@ -5,6 +5,7 @@
 /dist
 /dist-server
 /.angular
+/coverage
 
 # Editors / OS
 /.idea

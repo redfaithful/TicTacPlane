@@ -1,3 +1,5 @@
+import {vi} from 'vitest';
+
 import {GameEngine} from './game.engine';
 import {Cube, Point3} from './cube.model';
 
@@ -10,6 +12,10 @@ function centralPlane(
 
 describe('GameEngine', () => {
   let engine: GameEngine;
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
 
   beforeEach(() => {
     engine = new GameEngine();
@@ -29,7 +35,7 @@ describe('GameEngine', () => {
       player: 'red',
     });
     expect(engine.turn).toBe(1);
-    expect(engine.tied).toBeFalse();
+    expect(engine.tied).toBe(false);
     expect(engine.winner).toBeUndefined();
 
     const invalidTurn = engine.playTurn(1, 1, 1);
@@ -61,8 +67,8 @@ describe('GameEngine', () => {
     const turnBefore = engine.turn;
     const result = engine.playTurn(1, 1, 1);
 
-    expect(result.accepted).toBeFalse();
-    expect(result.won).toBeFalse();
+    expect(result.accepted).toBe(false);
+    expect(result.won).toBe(false);
     expect(result.player).toBe('red');
     expect(engine.turn).toBe(turnBefore);
   });
@@ -80,14 +86,14 @@ describe('GameEngine', () => {
       Cube.symmetry(finalPoint.z),
     ).player = undefined;
 
-    spyOn(engine, 'updateRiskFactor').and.returnValue(false);
+    vi.spyOn(engine, 'updateRiskFactor').mockReturnValue(false);
 
     const result = engine.playTurn(finalPoint.x, finalPoint.y, finalPoint.z);
 
-    expect(result.accepted).toBeTrue();
-    expect(result.won).toBeFalse();
-    expect(result.tied).toBeTrue();
-    expect(engine.tied).toBeTrue();
+    expect(result.accepted).toBe(true);
+    expect(result.won).toBe(false);
+    expect(result.tied).toBe(true);
+    expect(engine.tied).toBe(true);
     expect(engine.winner).toBeUndefined();
   });
 
@@ -132,9 +138,9 @@ describe('GameEngine', () => {
       target.z,
     );
 
-    expect(result.accepted).toBeTrue();
-    expect(result.won).toBeTrue();
-    expect(result.tied).toBeFalse();
+    expect(result.accepted).toBe(true);
+    expect(result.won).toBe(true);
+    expect(result.tied).toBe(false);
     expect(result.player).toBe('red');
   });
 });

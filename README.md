@@ -12,8 +12,8 @@ to be the first to complete an entire plain through the cube center.
 
 ## Running tests
 
-1. Run `npm run test`
+Tests use Vitest through the Angular CLI with jsdom; no browser installation is required.
 
-2. Once all tests finished press ctrl+c
-
-3. Answer Y to exit the tests run
+- Run `npm test -- --watch` to rerun tests as files change. Press Ctrl+C to stop.
+- Run `npm run test:once` to run the full suite once.
+- Run `npm run test:coverage` to run the suite with coverage reports in `coverage/`.
